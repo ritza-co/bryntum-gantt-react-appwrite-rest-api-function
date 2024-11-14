@@ -1,35 +1,74 @@
-import { Client, Users } from 'node-appwrite';
+import { Client, Databases, 
+  // ID, 
+  Query } from 'node-appwrite';
 
-// This Appwrite function will be executed every time your function is triggered
-export default async ({ req, res, log, error }) => {
-  // You can use the Appwrite SDK to interact with other services
-  // For this example, we're using the Users service
-  const client = new Client()
-    .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
-    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-    .setKey(req.headers['x-appwrite-key'] ?? '');
-  const users = new Users(client);
+const PROJECT_ID = process.env.PROJECT_ID;
+const DATABASE_ID = process.env.DATABASE_ID;
+const TASKS_COLLECTION_ID = process.env.TASKS_COLLECTION_ID;
+const DEPENDENCIES_COLLECTION_ID = process.env.DEPENDENCIES_COLLECTION_ID;
 
-  try {
-    const response = await users.list();
-    // Log messages and errors to the Appwrite Console
-    // These logs won't be seen by your end users
-    log(`Total users: ${response.total}`);
-  } catch(err) {
-    error("Could not list users: " + err.message);
-  }
+export default async ({ req, res }) => {
+    const client = new Client()
+        .setEndpoint('https://cloud.appwrite.io/v1')
+        .setProject(PROJECT_ID)
+        .setJWT(req.headers['authorization']);
 
-  // The req object contains the request data
-  if (req.path === "/ping") {
-    // Use res object to respond with text(), json(), or binary()
-    // Don't forget to return a response!
-    return res.text("Pong");
-  }
+    const databases = new Databases(client);
 
-  return res.json({
-    motto: "Build like a team of hundreds_",
-    learn: "https://appwrite.io/docs",
-    connect: "https://appwrite.io/discord",
-    getInspired: "https://builtwith.appwrite.io",
-  });
+    if (req.method === 'OPTIONS') {
+      return res.send('', 200, {
+        'Access-Control-Allow-Origin': 'http://localhost:3000',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      })
+    }
+
+    if (req.method === 'GET') {
+      try {
+          const tasksResponse = await databases.listDocuments(
+              DATABASE_ID,
+              TASKS_COLLECTION_ID,
+              [Query.orderAsc('parentIndex')]
+          );
+
+          const tasks = tasksResponse.documents.map((task) => {
+              task.id = task.$id;
+              // remove AppWrite-specific fields and fields that are null or undefined
+              const obj = Object.fromEntries(Object.entries(task).filter(([_, v]) => v != null ).filter(([k, _]) => k[0] != '$'));
+              return obj;
+          });
+
+          const dependenciesResponse = await databases.listDocuments(
+              DATABASE_ID,
+              DEPENDENCIES_COLLECTION_ID
+          );
+
+          const dependencies = dependenciesResponse.documents.map((dep) => {
+              dep.id = dep.$id;
+              // remove AppWrite-specific fields and fields that are null or undefined
+              const obj = Object.fromEntries(Object.entries(dep).filter(([_, v]) => v != null).filter(([k, _]) => k[0] != '$'));
+              return obj;
+          });
+      
+          return res.json({
+              success : true,
+              tasks   : {
+                  rows : tasks
+              },
+              dependencies : {
+                  rows : dependencies
+              }
+          }, 200, {
+              'Access-Control-Allow-Origin': 'http://localhost:3000',
+          });
+
+      } catch(err) {
+          return res.json({
+              success : false,
+              message : 'Tasks and dependencies could not be loaded'
+          }, 500, {
+              'Access-Control-Allow-Origin': 'http://localhost:3000',
+          });
+      } 
+    }
 };
