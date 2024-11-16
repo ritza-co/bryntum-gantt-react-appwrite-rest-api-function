@@ -1,9 +1,8 @@
 import { Client, Databases, ID, Query } from 'node-appwrite';
 
-const PROJECT_ID = process.env.PROJECT_ID;
-const DATABASE_ID = process.env.DATABASE_ID;
-const TASKS_COLLECTION_ID = process.env.TASKS_COLLECTION_ID;
-const DEPENDENCIES_COLLECTION_ID = process.env.DEPENDENCIES_COLLECTION_ID;
+const PROJECT_ID = process.env.PROJECT_ID,
+    DATABASE_ID = process.env.DATABASE_ID,TASKS_COLLECTION_ID = process.env.TASKS_COLLECTION_ID;
+    DEPENDENCIES_COLLECTION_ID = process.env.DEPENDENCIES_COLLECTION_ID;
 
 export default async ({ req, res }) => {
     const client = new Client()
