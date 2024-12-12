@@ -1,4 +1,4 @@
-# ⚡ Bryntum Gantt Node.js REST API Appwrite Function 
+# ⚡ Bryntum Gantt Node.js REST API Appwrite function 
 
 ## Appwrite collections required
 
