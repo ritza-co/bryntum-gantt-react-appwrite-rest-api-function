@@ -1,12 +1,15 @@
-# ⚡ Bryntum Gantt Node.js REST API Appwrite Function 
+# ⚡ Bryntum Gantt Node.js REST API Appwrite function 
 
 ## Appwrite collections required
 
-A database with two collections for Bryntum Gantt tasks and dependencies. The tasks collection needs to have [attributes](https://appwrite.io/docs/products/databases/collections#attributes) that match the [Bryntum Gantt Task Model fields](https://bryntum.com/products/gantt/docs/api/Gantt/model/TaskModel#fields), which represent a Bryntum Gantt task. The dependencies collection needs to have attributes that match the [Bryntum Gantt Dependency Model fields](https://bryntum.com/products/gantt/docs/api/Gantt/model/DependencyModel#fields), which represent a Bryntum Gantt dependency.
+This function requires a database with two collections for the Bryntum Gantt tasks and dependencies data:
 
-## 🔒 Environment Variables required
+- The tasks collection needs to have [attributes](https://appwrite.io/docs/products/databases/collections#attributes) matching the [TaskModel fields](https://bryntum.com/products/gantt/docs/api/Gantt/model/TaskModel#fields) that represent a Bryntum Gantt task.
+- The dependencies collection needs to have attributes matching the [DependencyModel fields](https://bryntum.com/products/gantt/docs/api/Gantt/model/DependencyModel#fields) that represent a Bryntum Gantt dependency.
 
-Set the following environmental variables on the function page in your Appwrite console:
+## 🔒 Environment variables required
+
+Set the following environmental variables in your Appwrite console by navigating to the **Settings** tab of the function page:
 
 - PROJECT_ID 
 - DATABASE_ID
@@ -15,17 +18,19 @@ Set the following environmental variables on the function page in your Appwrite 
 
 ## Authentication
 
-Authenticated requests to this Appwrite function require a JSON Web Token, created using Appwrite [JWT authentication](https://appwrite.io/docs/products/auth/jwt#jwt), in the request's "authorization" header. This authentication makes sure that only logged in users can view or change data. The client side Bryntum Gantt needs to set up Appwrite authentication so that when a user logs in, a session is created using the Appwrite client SDK. The JWT can be created using the session and added to the "authorization" header when making requests to this function.
+Authenticated requests to this function must include a JSON Web Token (JWT) created using Appwrite [JWT authentication](https://appwrite.io/docs/products/auth/jwt#jwt) to ensure that only logged-in users can view or change data.  
+
+We'll set up Appwrite authentication on the client-side Bryntum Gantt and use the Appwrite client SDK to create a session when a user logs in to the app. Then, we'll use the session to create a JWT with Appwrite JWT authentication and add it to the `authorization` header of any requests made to this function.
 
 ## 🧰 Usage
 
 ### GET
 
-Returns tasks and dependencies data. The returned response uses the [load response structure](https://bryntum.com/products/gantt/docs/guide/Gantt/data/crud_manager_project#load-response-structure) expected by a Bryntum Gantt [Crud Manager](https://bryntum.com/products/gantt/docs/guide/Gantt/data/crud_manager_project) load request.
+The function returns tasks and dependencies data for GET requests. The returned response uses the [load response structure](https://bryntum.com/products/gantt/docs/guide/Gantt/data/crud_manager_project#load-response-structure) expected by a Bryntum Gantt [Crud Manager](https://bryntum.com/products/gantt/docs/guide/Gantt/data/crud_manager_project) load request.
 
 ### POST
 
-Handles POST requests from Bryntum Gantt Crud Manager sync requests. It includes changes for all the linked data stores in a single request, which has a specific [sync request structure](https://bryntum.com/products/gantt/docs/guide/Scheduler/data/crud_manager_in_depth#sync-request-structure). The response has a specific [sync response structure](https://bryntum.com/products/gantt/docs/guide/Gantt/data/crud_manager_project#sync-response-structure) that sends the new `id` of a record created in Appwrite if a record is created. This makes sure that the client side Bryntum Gantt has the correct `id` for the record.
+The function handles POST requests from Bryntum Gantt Crud Manager sync requests. The Crud Manager includes the changes for multiple linked data stores in a single request, which has a specific [sync request structure](https://bryntum.com/products/gantt/docs/guide/Scheduler/data/crud_manager_in_depth#sync-request-structure). If the changes include the creation of a new record, the function uses the Crud Manager [sync response structure](https://bryntum.com/products/gantt/docs/guide/Gantt/data/crud_manager_project#sync-response-structure) to respond with the `id` of the newly created Appwrite, ensuring the client-side Bryntum Gantt has the correct `id` for the record.
 
 ## ⚙️ Configuration
 
